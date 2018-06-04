@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rbbs">
+    
+    <select id="read" resultType="RbbsDTO" parameterType="int">
+    	select rnum,id,title,content, to_char(rdate, 'yyyy-mm-dd') rdate,fname,rcount,imp,ansnum,indent,grpno,filesize,refnum from rbbs
+    	where rnum = #{rnum}
+    </select>
+    
+    <select id="list" resultType="RbbsDTO" parameterType="Map">
+   	select id,rnum,title,rdate,fname,imp,grpno,indent, ansnum,refnum, r
+	FROM(
+	select id,rnum,title,rdate,fname,imp,grpno,indent, ansnum,refnum, rownum r
+	FROM(
+	select id,rnum,title, to_char(rdate, 'yyyy-mm-dd') rdate ,fname,imp,grpno,indent,ansnum,refnum from rbbs
+	<where>
+		<choose>
+			<when test="col=='id'">
+			id like '%' || #{word} || '%'
+			</when>
+			<when test="col=='title'">
+			title like '%' || #{word} || '%'
+			</when>
+			<when test="col=='content'">
+			content like '%' || #{word} || '%'
+			</when>
+		</choose>
+	</where>
+			order by grpno desc, ansnum
+		)
+	)
+	
+	<![CDATA[
+	where r>= #{sno} and r<=#{eno}
+	]]>
+    
+    </select>
+    
+    <insert id="create"  parameterType="rbbsDTO">
+    
+    insert into rbbs(rnum, id, title, content, rdate, fname, rcount,imp,grpno)
+	values((SELECT NVL(MAX(rnum),0) + 1 as rnum FROM rbbs), #{id}, 
+	#{title}, #{content}, sysdate, #{fname}, #{rcount},#{imp},(select nvl(max(grpno),0)+1 from rbbs))
+    </insert>
+    
+    <delete id="delete" parameterType="int">
+    delete from rbbs where rnum=#{rnum}
+    </delete>
+    
+    <update id="update"  parameterType="rbbsDTO">
+    update rbbs set title=#{title},
+                content=#{content},
+                fname=#{fname},
+                rdate=sysdate
+                where rnum=#{rnum}
+    </update>
+    
+    <select id="total" parameterType="map" resultType="int">
+    select count(*) as cnt from rbbs 
+    	<where>
+		<choose>
+			<when test="col=='wname'">
+			id like '%' || #{word} ||'%'
+			</when>
+			<when test="col=='title'">
+			title like '%' || #{word} ||'%'
+			</when>
+			<when test="col=='content'">
+			content like '%' || #{word} || '%'
+			</when>
+		</choose>
+		</where>
+    </select>
+    
+	<update id="upviewcount" parameterType="int">
+	update rbbs set rcount = rcount+1
+					where rnum = #{rnum}
+	</update>
+    
+    <select id="idcheck" parameterType="Map" resultType="int">
+    	SELECT COUNT(rnum) as cnt       
+		FROM rbbs                           
+		WHERE rnum= #{rnum} AND id = #{id}   
+    </select>
+    
+    <insert id="createReply" parameterType="RbbsDTO">
+    
+    insert into rbbs(rnum, id, title, content, rdate, fname, rcount,imp, grpno, indent, refnum ,ansnum)
+	values((select nvl(max(rnum), 0) +1 as rnum from rbbs), #{id}, 
+	#{title}, #{content}, sysdate, #{fname}, #{rcount},#{imp}, #{grpno}, #{indent}+1, #{rnum}, #{ansnum}+1)
+    
+    </insert>
+    
+    <select id="vCheck" parameterType="String" resultType="int">
+    
+    select count(*) as cnt
+    from member where id = #{id} and grade = 'A'
+    
+    </select>
+    
+    <select id="idC" parameterType="int" resultType="String">
+    select id from rbbs where rnum=#{refnum}
+    </select>
+    
+    <select id="refC" parameterType="int" resultType="int">
+    select count(*) as cnt from rbbs where refnum=#{rnum}
+    </select>
+    
+     
+</mapper>
+

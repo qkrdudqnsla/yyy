@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE  tiles-definitions PUBLIC 
+    "-//Aapche Software Foundation//DTD Tiles Configuration 2.0//EN" 
+    "http://tiles.apache.org/dtds/tiles-config_2_0.dtd"> 
+
+<tiles-definitions> 
+
+<definition name="/pbbs/list" extends="main"> 
+        <put-attribute name="title" value="목록" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/pbbs/list.jsp" /> 
+    </definition>   
+    <definition name="/pbbs/view" extends="main"> 
+        <put-attribute name="title" value="수정" ></put-attribute> 
+        <put-attribute name="body" value="/WEB-INF/views/pbbs/view.jsp" /> 
+    </definition>
+  
+           
+   
+</tiles-definitions> 
